@@ -14,7 +14,7 @@ import bcrypt
 import os
 
 
-cred = credentials.Certificate(os.path.abspath('../serviceAccountKey.json'))
+cred = credentials.Certificate(os.path.abspath('./serviceAccountKey.json'))
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
