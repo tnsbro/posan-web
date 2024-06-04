@@ -1,12 +1,5 @@
 from flask import Flask
 from flask import request #브라우저의 요청을 처리하기 위한 클래스
-from flask import render_template #페이지 렌더링을 위한 함수
-from flask_pymongo import PyMongo
-from bson.objectid import ObjectId # 몽고DB의 _id 필드값 처리를 위해 추가
-from flask import abort # 웹 사이트에서 발생하는 오류 처리를 위한 클래스
-from flask import redirect # 인자로 전달된 주소 호출
-from flask import url_for # 인자로 전달된 함수가 가리키는 URL 주소 생성
-from flask import flash
 from datetime import datetime
 from flask import session
 from datetime import timedelta
@@ -18,9 +11,10 @@ import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 import bcrypt
+import os
 
 
-cred = credentials.Certificate('../serviceAccountKey.json')
+cred = credentials.Certificate(os.path.abspath('../serviceAccountKey.json'))
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -29,8 +23,6 @@ app = Flask(__name__)    #플라스크 객체(서버) 생성
 CORS(app)
 app.config["SECRET_KEY"] = "abcd" # flash() 함수를 사용하기 위해서 설정해야 함. 플라스크에서
 
-
-    
 
 @app.route('/list', methods=['GET'])
 def list_data():
