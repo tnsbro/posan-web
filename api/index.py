@@ -161,21 +161,21 @@ def search_documents():
         return jsonify({"error": str(e)}), 500
     
     
-@app.route("/allowed", methods=['POST'])   
-def allowed():
-    if request.method == 'POST':
-        data = request.json
-        id = data['id']
-        classes = mongo.db.classes
-        classes.update_one({'_id' : ObjectId(id)}, {
-            '$set' : {
-                'loading' : 'x',
-                'possible' : 'x',
-            }
-        })
-        return jsonify(data)
-    else:
-        return '잘못된 접근'
+# @app.route("/allowed", methods=['POST'])   
+# def allowed():
+#     if request.method == 'POST':
+#         data = request.json
+#         id = data['id']
+#         classes = mongo.db.classes
+#         classes.update_one({'_id' : ObjectId(id)}, {
+#             '$set' : {
+#                 'loading' : 'x',
+#                 'possible' : 'x',
+#             }
+#         })
+#         return jsonify(data)
+#     else:
+#         return '잘못된 접근'
     
 """@app.route("/reset", methods=['GET','POST'])   
 def reset():
