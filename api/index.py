@@ -14,9 +14,23 @@ import bcrypt
 import os
 
 
-cred = credentials.Certificate(os.path.abspath('./serviceAccountKey.json'))
+cred = credentials.Certificate({
+  "type": "service_account",
+  "project_id": "prototype-ba6c5",
+  "private_key_id": "c79ac1ee9627bee6626a972242a3714f6e733a88",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCyXBPpwTi5jh9Y\n0chAIsSRGKwhUHJXXPlQ6rXhemGLB/pgNXBYyajsduHKGM1/v62yNGWQH+lLcMXd\n/cqZkkD+GORl6m+7dIy+iGccGhWFt8mhjQERGcNKm2svsROIuFrty5WzMkdSRXOR\nxHvKELGSHeRspusad4thqCwNE+0h6M+Rp3dbAD/gVJM3O0Eb4SvC/kx8ysbQYP2E\nW6D9vDb/K5hhvUSy90SHTxhnr/6EPxxWn7PqaS2vWOz3yKLoRwxfSHKXwqALNuyj\nQflGgnjOVMGUtVYs+4I8vlt5Q3uobCMj62LcmyXkYzVoTr8C3V57k6q1QYnI2s5a\nls81qslbAgMBAAECggEAHFE8JB+2RteGqI5d8bjTZon5QizIipBLUQqCp/LLK8yv\ndrjlRmN1+10AihqX/dFL3YAuI8y9OGoGMDGMCgfLY8xF7txisutVMSbs3+xQQHOm\ngoylf7aMZ/r28JJ3nHxQi3KIKPQxmKFIMPt1/+XYm289hfaWWxRhv7Z4j/b67igJ\nPs7e3z5uKVFjME91IPrBBHMaQsvySGNsivB2pif4mF2n4/jtHmkbnK25b37dfYKR\nHTGYEZu3niaBb697wHagm/unDEEpZDHkJrxvf8KwNFiH89uwPckNt1Cpm6a+g1Rm\nphCX3jUq8W4QvljWKB9bpRnVa9HT0u66ND2f8UGUsQKBgQDoJNL02jgHqJjUkM93\ncnd1brJ6wKq1HTON/ghc9oy4HBF5BeQ7rOmYXNasyTyV6qDj2E/6VpTil6g12wvb\nYkH7bXpRPnPpTd3Jju/WLNER7McWbyhHPPttacZLpenNJr7P3CpGqdZN/3G+e3tA\nbcmCtTRaUIBYcWFdLxSlLuQaMwKBgQDEsFCX58PhIJewJDQALCi7+6vUWGbmnGCQ\nQ1queO/mzeM5xH3A+eTH5jyIU21bQXZMYQQJtM2lEi0SYwHUsA7U/soYMtjSgh7X\nulTJ28LfC0NPK0SS5jm3E1KUh4nAwrTUdkxeMKCl1gI3HjDzc0J2nk5TIhKp9Eis\nqYHp4088OQKBgQChzLi0LDyNKfeLgHr5t/CHCuafJBZXMckzGHHfyX/++qE7Bt4y\nsawGo/6EY6Y0n1oQND5aL2qKHEYDc27qM6vlgEKWyb6kR79jspp7XrVBlxSUEFm0\nfU6IzgaFx1gTwwOPgNZ+dfWGW5p9tzcKivq+fWnF4QHzouLHvf7Xur0FfQKBgCAp\nJERyZRj+l0753HbawZ5bPHFwMwMqNq/gE4fLxo5aw/jCJD3Vno8BGoy/93WgcpNy\nmZJsueNv4WbMQZRhZUt2jdz/E2z4Ucq8cPjAslB+Kvda/891TaKdyjb3IpMeQysq\nXLpaASqcn6gbi62C/y8eG3iEbcDUbL2uyctQm7ghAoGBAMgmil9dQL1pH4azM6Ks\nOFla9j7ADMZMhJ10pDAR/nOa/uAW3dS9Ug5cKnmIn3uHrAqBbJXWv29r1Pu3mFIV\n04i5NS9XcclAY9wqD1prUJS/s2wj7F6zn4L0ttK4vBRf1VeRYd64zEn/HKRq0e8G\n0sIYWqOsM+Kzdctq3TekZ7/D\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-ty81b@prototype-ba6c5.iam.gserviceaccount.com",
+  "client_id": "107445036565747793492",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ty81b%40prototype-ba6c5.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+})
+
 firebase_admin.initialize_app(cred)
 db = firestore.client()
+
 
 
 app = Flask(__name__)    #플라스크 객체(서버) 생성
