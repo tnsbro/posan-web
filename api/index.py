@@ -230,7 +230,7 @@ def add_data():
 
 @app.route("/login", methods=['POST'])  #*
 def login():
-    if request.method == 'GET': 
+    if request.method == 'POST': 
         postData = request.json
         info = postData["info"]
         password = postData["password"].encode('utf-8')
