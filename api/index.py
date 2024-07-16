@@ -216,13 +216,13 @@ def add_data():
         doc_name = data['info']
         password = data['password'].encode('utf-8')
         name = data['name']
-        docs = db.collection('students').where('name', '==', doc_name).stream()
+        docs = db.collection('students').where('info', '==', doc_name).stream()
         result = [{doc.id: doc.to_dict()} for doc in docs]
         
         if result:
             return '이미'
         else:
-            db.collection('students').document(doc_name).set({'name' : name, 'password' : bcrypt.hashpw(password, bcrypt.gensalt())})
+            db.collection('students').document(doc_name).set({'name' : name, 'info' : doc_name, 'password' : bcrypt.hashpw(password, bcrypt.gensalt())})
             db.collection('students').document(doc_name).collection('자습').document('자습').set({'점심시간':'', '8,9교시':'', '1자':'', '2자':'', '저녁시간':''})
             return '성공'
     except Exception as e:
