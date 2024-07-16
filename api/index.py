@@ -265,8 +265,8 @@ def login():
         else:
             return jsonify('정보')
         
-@app.route("/logout", methods=['POST'])  #*
-def login():
+@app.route("/logout", methods=['POST']) 
+def logout():
     if request.method == 'POST': 
         postData = request.json
         info = postData["info"]
