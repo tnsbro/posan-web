@@ -246,27 +246,20 @@ def login():
             data = doc.to_dict()
             if bcrypt.checkpw(password, data["password"]):
                 session_id = str(uuid.uuid4())
+                expiration_time = datetime.now() + timedelta(minutes=SESSION_EXPIRATION_MINUTES)
                 if info in session:
-                    session_data = session.get(info)
                     session_ref = db.collection('sessions').document(info)
-                    expiration_time = session_data.get('expiration_time')
-                    if expiration_time and expiration_time >= datetime.now():
-                        session.pop(info, None)
-                        session_ref.delete()
-                        expiration_time = datetime.now() + timedelta(minutes=SESSION_EXPIRATION_MINUTES)
-                        session_ref.set({
-                            'info': info,
-                            'expiration_time': expiration_time
-                        })
-                        return '로그인 필요'
-                    else:
-                        return '성공', session_id
-                else:
-                    session[info] = {
-                        'session_id' : session_id,
-                        'expiration_time': expiration_time
-                    }
-                    return '성공', session_id
+                    session_ref.delete()
+
+                session[info] = {
+                    'session_id' : session_id,
+                    'expiration_time': expiration_time
+                }
+                session_ref.set({
+                    'info': info,
+                    'expiration_time': expiration_time
+                })
+                return '성공', session_id
             else:
                 return '비밀번호'
         else:
