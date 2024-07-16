@@ -277,6 +277,26 @@ def login():
             return '성공'
         except Exception as e:
             return f"An Error Occurred: {e}", 500
+        
+@app.route("/logcheck", methods=['POST'])
+def logcheck():
+    postData = request.json
+    info = postData["info"]
+    session_id = postData["session_id"]
+    doc_ref = db.collection('sessions').where('session_id', '==', session_id).stream()
+    doc = doc_ref.get()
+    if doc.exists:
+        session_data = doc.to_dict()
+        expiration_time = session_data['expiration_time']
+        if expiration_time >= datetime.now():
+            return '성공'
+        else:
+            session.pop(info, None)
+            doc_ref.delete()
+            return '로그인 필요'
+
+
+
 
         
         
