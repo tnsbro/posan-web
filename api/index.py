@@ -224,6 +224,7 @@ def add_data():
         else:
             db.collection('students').document(doc_name).set({'name' : name, 'info' : doc_name, 'password' : bcrypt.hashpw(password, bcrypt.gensalt())})
             db.collection('students').document(doc_name).collection('자습').document('자습').set({'점심시간':'', '8,9교시':'', '1자':'', '2자':'', '저녁시간':''})
+            db.collection('students').document(doc_name).collection('loading').document('자습').set({})
             return '성공'
     except Exception as e:
         return f"An Error Occurred: {e}", 500
