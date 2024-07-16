@@ -37,7 +37,7 @@ db = firestore.client()
 
 
 app = Flask(__name__)    #플라스크 객체(서버) 생성
-CORS(app, origins='*')
+CORS(app)
 app.config["SECRET_KEY"] = "posanprototype" # flash() 함수를 사용하기 위해서 설정해야 함. 플라스크에서
 app.config['SESSION_TYPE'] = 'firestore'  
 
@@ -294,6 +294,8 @@ def logcheck():
             session.pop(info, None)
             doc_ref.delete()
             return jsonify('로그인')
+    else:
+        return jsonify('로그인')
 
 
 
