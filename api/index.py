@@ -260,13 +260,13 @@ def login():
                         })
                         return '로그인 필요'
                     else:
-                        return '성공'
+                        return '성공', session_id
                 else:
                     session[info] = {
                         'session_id' : session_id,
                         'expiration_time': expiration_time
                     }
-                    return '성공'
+                    return '성공', session_id
             else:
                 return '비밀번호'
         else:
