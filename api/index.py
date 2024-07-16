@@ -93,13 +93,13 @@ def register():
                     load = {d:'1'}
                 db.collection('class').document('loading').collection(Class).document(time).set({'student' : info, 'friends' : friends})
                 load_ref.set(load)
-                return '성공'
+                return jsonify('성공')
 
             else:
-                return '잘못된 접근1'
+                return jsonify('잘못된 접근1')
 
         else:
-            return '잘못된 접근2'
+            return jsonify('잘못된 접근2')
         
 @app.route("/timecheck", methods=["POST"])
 def timecheck():
@@ -122,7 +122,7 @@ def timecheck():
                     result[t] == '2'
 
             else:
-                return '잘못된 접근'
+                return jsonify('잘못된 접근')
         
         return jsonify(result)
 
@@ -136,7 +136,7 @@ def classappend():
     for i in time:
         doc_ref = db.collection('class').document(doc_name).collection(i).document(i) 
         doc_ref.set({'loading': False, 'possible': True})
-    return '성공'
+    return jsonify('성공')
 
 
 
@@ -224,12 +224,12 @@ def add_data():
         result = [{doc.id: doc.to_dict()} for doc in docs]
         
         if result:
-            return '이미'
+            return jsonify('이미')
         else:
             db.collection('students').document(doc_name).set({'name' : name, 'info' : doc_name, 'password' : bcrypt.hashpw(password, bcrypt.gensalt())})
             db.collection('students').document(doc_name).collection('자습').document('자습').set({'점심시간':'', '8,9교시':'', '1자':'', '2자':'', '저녁시간':''})
             db.collection('students').document(doc_name).collection('loading').document('자습').set({})
-            return '성공'
+            return jsonify('성공')
     except Exception as e:
         return f"An Error Occurred: {e}", 500
 
@@ -259,11 +259,11 @@ def login():
                     'info': info,
                     'expiration_time': expiration_time
                 })
-                return '성공', session_id
+                return jsonify('성공', session_id)
             else:
-                return '비밀번호'
+                return jsonify('비밀번호')
         else:
-            return '정보'
+            return jsonify('정보')
         
 @app.route("/logout", methods=['POST'])  #*
 def login():
@@ -274,7 +274,7 @@ def login():
         try:
             session_ref = db.collection('sessions').document(session.sid)
             session_ref.delete()
-            return '성공'
+            return jsonify('성공')
         except Exception as e:
             return f"An Error Occurred: {e}", 500
         
@@ -289,11 +289,11 @@ def logcheck():
         session_data = doc.to_dict()
         expiration_time = session_data['expiration_time']
         if expiration_time >= datetime.now():
-            return '성공'
+            return jsonify('성공')
         else:
             session.pop(info, None)
             doc_ref.delete()
-            return '로그인 필요'
+            return jsonify('로그인')
 
 
 
@@ -313,7 +313,7 @@ def mypage():
             del data['password']
             return jsonify(data, selves)
         else:
-            return '잘못된 접근'
+            return jsonify('잘못된 접근')
 
     
 
