@@ -246,10 +246,11 @@ def login():
             data = doc.to_dict()
             if bcrypt.checkpw(password, data["password"]):
                 session_id = str(uuid.uuid4())
+                session_ref = db.collection('sessions').document(info)
                 expiration_time = datetime.now() + timedelta(minutes=SESSION_EXPIRATION_MINUTES)
                 if info in session:
-                    session_ref = db.collection('sessions').document(info)
                     session_ref.delete()
+                    session.pop(info, None)
 
                 session[info] = {
                     'session_id' : session_id,
