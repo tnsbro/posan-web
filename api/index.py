@@ -12,6 +12,9 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import bcrypt
 import os
+from flask import session
+from flask_session import Session
+import uuid
 
 
 cred = credentials.Certificate({
@@ -35,7 +38,8 @@ db = firestore.client()
 
 app = Flask(__name__)    #플라스크 객체(서버) 생성
 CORS(app)
-app.config["SECRET_KEY"] = "abcd" # flash() 함수를 사용하기 위해서 설정해야 함. 플라스크에서
+app.config["SECRET_KEY"] = "posanprototype" # flash() 함수를 사용하기 위해서 설정해야 함. 플라스크에서
+app.config['SESSION_TYPE'] = 'firestore'  
 
 
 @app.route('/list', methods=['GET'])
@@ -237,14 +241,50 @@ def login():
         password = postData["password"].encode('utf-8')
         doc_ref = db.collection('students').document(info)
         doc = doc_ref.get()
+        SESSION_EXPIRATION_MINUTES = 5
         if doc.exists: 
             data = doc.to_dict()
             if bcrypt.checkpw(password, data["password"]):
-                return '성공'
+                session_id = str(uuid.uuid4())
+                if info in session:
+                    session_data = session.get(info)
+                    session_ref = db.collection('sessions').document(info)
+                    expiration_time = session_data.get('expiration_time')
+                    if expiration_time and expiration_time >= datetime.now():
+                        session.pop(info, None)
+                        session_ref.delete()
+                        expiration_time = datetime.now() + timedelta(minutes=SESSION_EXPIRATION_MINUTES)
+                        session_ref.set({
+                            'info': info,
+                            'expiration_time': expiration_time
+                        })
+                        return '로그인 필요'
+                    else:
+                        return '성공'
+                else:
+                    session[info] = {
+                        'session_id' : session_id,
+                        'expiration_time': expiration_time
+                    }
+                    return '성공'
             else:
                 return '비밀번호'
         else:
             return '정보'
+        
+@app.route("/logout", methods=['POST'])  #*
+def login():
+    if request.method == 'POST': 
+        postData = request.json
+        info = postData["info"]
+        session.pop(info, None)
+        try:
+            session_ref = db.collection('sessions').document(session.sid)
+            session_ref.delete()
+            return '성공'
+        except Exception as e:
+            return f"An Error Occurred: {e}", 500
+
         
         
         
