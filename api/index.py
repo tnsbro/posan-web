@@ -257,7 +257,7 @@ def login():
                     'expiration_time': expiration_time
                 }
                 session_ref.set({
-                    'info': info,
+                    'session_id' : session_id,
                     'expiration_time': expiration_time
                 })
                 return jsonify('성공', session_id)
