@@ -283,17 +283,20 @@ def logcheck():
     postData = request.json
     info = postData["info"]
     session_id = postData["session_id"]
-    doc_ref = db.collection('sessions').where('session_id', '==', session_id).stream()
+    doc_ref = db.collection('sessions').document(info)
     doc = doc_ref.get()
     if doc.exists:
         session_data = doc.to_dict()
-        expiration_time = session_data['expiration_time']
-        if expiration_time >= datetime.now():
-            return jsonify('성공')
+        if session_data["session_id"] == session_id:
+            expiration_time = session_data['expiration_time']
+            if expiration_time >= datetime.now():
+                return jsonify('성공')
+            else:
+                session.pop(info, None)
+                doc_ref.delete()
+                return jsonify('로그인')
         else:
-            session.pop(info, None)
-            doc_ref.delete()
-            return jsonify('로그인')
+            return jsonify('잘못된 접근')
     else:
         return jsonify('로그인')
 
