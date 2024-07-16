@@ -219,7 +219,7 @@ def add_data():
         docs = db.collection('students').where('name', '==', doc_name).stream()
         result = [{doc.id: doc.to_dict()} for doc in docs]
         
-        if not result:
+        if result:
             return '이미'
         else:
             db.collection('students').document(doc_name).set({'name' : name, 'password' : bcrypt.hashpw(password, bcrypt.gensalt())})
