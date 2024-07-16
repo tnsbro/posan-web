@@ -307,7 +307,7 @@ def test():
     doc_ref = db.collection('sessions').document('2508')
     doc_ref.delete()
     session.pop(2508, None)
-    return 0
+    return '0'
         
         
         
