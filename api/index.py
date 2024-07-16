@@ -216,7 +216,7 @@ def add_data():
         doc_name = data['info']
         password = data['password'].encode('utf-8')
         name = data['name']
-        docs = db.collection('students').where('name', '==', name).stream()
+        docs = db.collection('students').where('name', '==', doc_name).stream()
         result = [{doc.id: doc.to_dict()} for doc in docs]
         
         if not result:
