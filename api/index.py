@@ -128,15 +128,34 @@ def timecheck():
 
 
 
-@app.route("/classappend", methods=['POST'])   
+@app.route("/classappend", methods=['GET'])   
 def classappend():
     time = ['점심시간', '8,9교시', '1자', '2자', '저녁시간']
+    names = ['과학실1(물지)']
+    for doc_name in names:
+        for i in time:
+            doc_ref = db.collection('class').document('자율관 1층').collection(doc_name).document(i) 
+            doc_ref.set({'loading': False, 'possible': True})
+    return '성공'
+
+@app.route("/classes", methods=['POST'])   
+def classes():
     data = request.json
-    doc_name = data['class']
-    for i in time:
-        doc_ref = db.collection('class').document(doc_name).collection(i).document(i) 
-        doc_ref.set({'loading': False, 'possible': True})
-    return jsonify('성공')
+    doc_name = data['building']
+    time = data['time']
+    print(doc_name)
+    docs_ref = db.collection('class').document(doc_name)
+    docs = docs_ref.collections()
+    doc_data = {}
+    for c in docs:
+        c_name = c.id
+        doc = docs_ref.collection(c_name).document(time).get().to_dict()
+        if doc['loading'] == False and doc['possible'] == True:
+            doc_data[c_name] = 'lightyellow'
+        elif doc['loading'] == True and doc['possible'] == True:
+            doc_data[c_name] = 'lightgreen'
+
+    return jsonify(doc_data)
 
 
 
