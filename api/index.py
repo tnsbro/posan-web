@@ -72,88 +72,85 @@ def register():
     if request.method == "POST":
         postData = request.json
         Class = postData['class']
+        location = postData['location']
         time = postData["time"]
         info = postData["info"]
         friends = postData["friends"]
-        doc_ref = db.collection('class').document(Class).collection(time).document(time)
+        purpose = postData["purpose"]
+        plus = postData["plus"]
+        targets = list(friends)
+        targets.append(info)
+        doc_ref = db.collection('class').document(location).collection(Class).document(time)
         doc = doc_ref.get()
+        not_list = []
+        possible_list = list(friends)
         if doc.exists: 
             data = doc.to_dict()
-            if data['loading'] == False and data['possible'] == True:
-                data['loading'] = True
-                data['possible'] = False
-                doc_ref.set(data)
-                d = Class+'-'+time
-                load_ref = db.collection('students').document(info).collection('loading').document('자습')
-                load = load_ref.get()
-                if load.exists:
-                    load = load.to_dict()
-                    load[d] = '1'
+            if data['possible'] == True:
+                for target in targets:
+                    load_ref = db.collection('students').document(target).collection('loading').document('자습')
+                    load = load_ref.get()
+                    if load.exists:
+                        load_data = load.to_dict()
+                        try:
+                            if load_data[time] != Class:
+                                not_list.append(target)
+                                try:
+                                    possible_list.remove(target)
+                                except:
+                                    continue
+                            else:
+                                load_data[time] = Class
+                                load_ref.set(load_data)
+                        except:
+                            load_data[time] = Class
+                            load_ref.set(load_data)
+
+                if len(not_list) != len(targets) and info not in not_list:
+                    data['loading'] = True
+                    doc_ref.set(data)
+                    db.collection('class').document('loading').collection(Class).document(time).set({'location':location,'student' : info, 'purpose':purpose, 'friends' : possible_list, 'plus':plus})
+                    return jsonify(['성공', not_list])
                 else:
-                    load = {d:'1'}
-                db.collection('class').document('loading').collection(Class).document(time).set({'student' : info, 'friends' : friends})
-                load_ref.set(load)
-                return jsonify('성공')
+                    print()
+                    return jsonify(['잘못된 접근1'])
 
             else:
-                return jsonify('잘못된 접근1')
+                return jsonify(['잘못된 접근2'])
 
         else:
-            return jsonify('잘못된 접근2')
+            return jsonify(['잘못된 접근3'])
         
-@app.route("/timecheck", methods=["POST"])
-def timecheck():
-    if request.method == "POST":
-        postData = request.json
-        Class = postData['class']
-        timelist = ['점심시간', '저녁시간', '8,9교시','1자','2자']
-        result = {'점심시간':'', '저녁시간':'', '8,9교시':'','1자':'','2자':''}
-        for t in timelist:
-            doc_ref = db.collection('class').document(Class).collection(t).document(t)
-            doc = doc_ref.get()
-            if doc.exists: 
-                data = doc.to_dict()
-                if data['loading'] == False:
-                    if data['possible'] == True:
-                        result[t] == '1'
-                    else:
-                        result[t] == '0'
-                else:
-                    result[t] == '2'
-
-            else:
-                return jsonify('잘못된 접근')
-        
-        return jsonify(result)
 
 
 
-@app.route("/classappend", methods=['GET'])   
-def classappend():
-    time = ['점심시간', '8,9교시', '1자', '2자', '저녁시간']
-    names = ['과학실1(물지)']
-    for doc_name in names:
-        for i in time:
-            doc_ref = db.collection('class').document('자율관 1층').collection(doc_name).document(i) 
-            doc_ref.set({'loading': False, 'possible': True})
-    return '성공'
+# @app.route("/classappend", methods=['GET'])   
+# def classappend():
+#     time = ['점심시간', '8,9교시', '1자', '2자', '저녁시간']
+#     names = ['과학실1(물지)']
+#     for doc_name in names:
+#         for i in time:
+#             doc_ref = db.collection('class').document('자율관 1층').collection(doc_name).document(i) 
+#             doc_ref.set({'loading': False, 'possible': True})
+#     return '성공'
 
 @app.route("/classes", methods=['POST'])   
 def classes():
     data = request.json
     doc_name = data['building']
     time = data['time']
-    print(doc_name)
+    print(data)
     docs_ref = db.collection('class').document(doc_name)
     docs = docs_ref.collections()
     doc_data = {}
     for c in docs:
         c_name = c.id
         doc = docs_ref.collection(c_name).document(time).get().to_dict()
-        if doc['loading'] == False and doc['possible'] == True:
-            doc_data[c_name] = 'lightyellow'
-        elif doc['loading'] == True and doc['possible'] == True:
-            doc_data[c_name] = 'lightgreen'
+        if doc['possible'] == True:
+            if doc['loading'] == False:
+                doc_data[c_name] = 'lightyellow'
+            elif doc['loading'] == True:
+                doc_data[c_name] = 'lightgreen'
 
     return jsonify(doc_data)
 
@@ -161,50 +158,46 @@ def classes():
 
 @app.route("/teacher", methods=['GET'])   
 def teacher():
-    docs = db.collection('class').stream()
-    result = docs.to_dict()
-    return jsonify(result)
-    
+    docs_ref = db.collection('class').document('loading')
+    docs = docs_ref.collections()
+    data = {}
+    for doc in docs:
+        d_name = doc.id
+        times = docs_ref.collection(d_name).stream()
+        data[d_name] = [{time.id: time.to_dict()} for time in times]
 
-
-@app.route('/search', methods=['GET'])
-def search_documents():
-    field = request.args.get('field')
-    value = request.args.get('value')
-    
-    if not field or not value:
-        return jsonify({"error": "Field and value query parameters are required"}), 400
-
-    try:
-        # Firestore에서 해당 필드와 값에 해당하는 문서 검색
-        collection_ref = db.collection('class')
-        query = collection_ref.where(field, '==', value)
-        results = query.stream()
-        
-        documents = []
-        for doc in results:
-            documents.append(doc.to_dict())
-        
-        return jsonify(documents), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    print(data)
+    return jsonify(data)
     
     
-# @app.route("/allowed", methods=['POST'])   
-# def allowed():
-#     if request.method == 'POST':
-#         data = request.json
-#         id = data['id']
-#         classes = mongo.db.classes
-#         classes.update_one({'_id' : ObjectId(id)}, {
-#             '$set' : {
-#                 'loading' : 'x',
-#                 'possible' : 'x',
-#             }
-#         })
-#         return jsonify(data)
-#     else:
-#         return '잘못된 접근'
+@app.route("/allowed", methods=['POST'])   
+def allowed():
+    if request.method == 'POST':
+        data = request.json
+        Class = data['Class']
+        time = data['time']
+        person = data['person']
+        location = data['location']
+        doc_ref = db.collection('class').document(location).collection(Class).document(time)
+        doc = doc_ref.get().to_dict()
+        doc['loading'] = False
+        doc['possible'] = False
+        doc_ref.set(doc)
+        load_ref = db.collection('class').document('loading').collection(Class).document(time)
+        load_ref.delete()
+        for p in person:
+            p_ref = db.collection('students').document(p)
+            load_self_ref = p_ref.collection('loading').document('자습')
+            load_self = load_self_ref.get().to_dict()
+            load_self[time] = ''
+            load_self_ref.set(load_self)
+            self_ref = p_ref.collection('자습').document('자습')
+            self_data = self_ref.get().to_dict()
+            self_data[time] = Class
+            self_ref.set(self_data)
+        return jsonify('성공')
+    else:
+        return '잘못된 접근'
     
 """@app.route("/reset", methods=['GET','POST'])   
 def reset():
@@ -337,10 +330,15 @@ def mypage():
         doc_ref = db.collection('students').document(info)
         doc = doc_ref.get()
         if doc.exists: 
-            selves = doc_ref.collection('자습').document('자습').get().to_dict()
+            selves1 = doc_ref.collection('자습').document('자습').get().to_dict()
+            selves2 = doc_ref.collection('loading').document('자습').get().to_dict()
+            for self in selves2:
+                selves1[self] = str(selves2[self]) + ' (대기 중)'
             data = doc.to_dict()
             del data['password']
-            return jsonify(data, selves)
+            data['자습'] = selves1
+            print(data)
+            return jsonify(data)
         else:
             return jsonify('잘못된 접근')
 
