@@ -15,6 +15,8 @@ import os
 from flask import session
 from flask_session import Session
 import uuid
+import requests
+from bs4 import BeautifulSoup
 
 
 cred = credentials.Certificate({
@@ -112,7 +114,6 @@ def register():
                     db.collection('class').document('loading').collection(Class).document(time).set({'location':location,'student' : info, 'purpose':purpose, 'friends' : possible_list, 'plus':plus})
                     return jsonify(['성공', not_list])
                 else:
-                    print()
                     return jsonify(['잘못된 접근1'])
 
             else:
@@ -139,7 +140,6 @@ def classes():
     data = request.json
     doc_name = data['building']
     time = data['time']
-    print(data)
     docs_ref = db.collection('class').document(doc_name)
     docs = docs_ref.collections()
     doc_data = {}
@@ -165,8 +165,6 @@ def teacher():
         d_name = doc.id
         times = docs_ref.collection(d_name).stream()
         data[d_name] = [{time.id: time.to_dict()} for time in times]
-
-    print(data)
     return jsonify(data)
     
     
@@ -338,10 +336,44 @@ def mypage():
             data = doc.to_dict()
             del data['password']
             data['자습'] = selves1
-            print(data)
+
             return jsonify(data)
         else:
             return jsonify('잘못된 접근')
+        
+@app.route('/meals', methods=['POST'])
+def meals():
+    if request.method == 'POST':
+        dayrange = request.json['range']
+        now = datetime.now()
+        monthlist = [31,28,31,30,31,30,31,31,30,31,30,31]
+        if dayrange == 'day':
+            date = now.strftime('%Y%m%d')
+            days = 1
+            end_date = date
+        elif dayrange == 'month':
+            date = now.strftime('%Y%m')+'01'
+            days = monthlist[now.month-1]
+            end_date = now.strftime('%Y%m')+str(days)
+            
+
+        itemlist = {}
+
+        for d in range(days):
+            d_date = str(int(date)+d)
+            itemlist[d_date] = {}
+
+        webpage = requests.get(f'https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=e551d44107644bb582cdd21f692e6dd4&Type=xml&plndex=1&pSize=100&ATPT_OFCDC_SC_CODE=D10&SD_SCHUL_CODE=7240189&MLSV_FROM_YMD={date}&MLSV_TO_YMD={end_date}')
+        soup = BeautifulSoup(webpage.content, 'html.parser')
+        rows = soup.select("row")
+        for r in rows:
+            items = r.select_one("ddish_nm").text.split("<br/>")
+            i_date = r.select_one('MLSV_YMD').text
+            mealType = r.select_one('MMEAL_SC_NM').text
+            itemlist[i_date][mealType] = items
+        return jsonify(itemlist)
+        
+
 
     
 
