@@ -333,7 +333,8 @@ def mypage():
             selves1 = doc_ref.collection('자습').document('자습').get().to_dict()
             selves2 = doc_ref.collection('loading').document('자습').get().to_dict()
             for self in selves2:
-                selves1[self] = str(selves2[self]) + ' (대기 중)'
+                if selves2[self] != '':
+                    selves1[self] = str(selves2[self]) + ' (대기 중)'
             data = doc.to_dict()
             del data['password']
             data['자습'] = selves1
