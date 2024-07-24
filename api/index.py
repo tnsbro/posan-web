@@ -332,7 +332,7 @@ def mypage():
             selves2 = doc_ref.collection('loading').document('자습').get().to_dict()
             for self in selves2:
                 if selves2[self] != '':
-                    selves1[self] = str(selves2[self]) + ' (대기 중)'
+                    selves1[self] = str(selves2[self]) + '대기'
             data = doc.to_dict()
             del data['password']
             data['자습'] = selves1
@@ -345,7 +345,10 @@ def mypage():
 def meals():
     if request.method == 'POST':
         dayrange = request.json['range']
+        print(dayrange)
         now = datetime.now()
+        days = 1
+        date = ''
         monthlist = [31,28,31,30,31,30,31,31,30,31,30,31]
         if dayrange == 'day':
             date = now.strftime('%Y%m%d')
@@ -374,7 +377,37 @@ def meals():
         return jsonify(itemlist)
         
 
+# @app.route('/meal', methods=['GET'])
+# def meals1():
+#         dayrange = 'day'
+#         now = datetime.now()
+#         monthlist = [31,28,31,30,31,30,31,31,30,31,30,31]
+#         if dayrange == 'day':
+#             date = now.strftime('%Y%m%d')
+#             days = 1
+#             end_date = date
+#         elif dayrange == 'month':
+#             date = now.strftime('%Y%m')+'01'
+#             days = monthlist[now.month-1]
+#             end_date = now.strftime('%Y%m')+str(days)
+            
 
+#         itemlist = {}
+
+#         for d in range(days):
+#             d_date = str(int(date)+d)
+#             itemlist[d_date] = {}
+
+#         webpage = requests.get(f'https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=e551d44107644bb582cdd21f692e6dd4&Type=xml&plndex=1&pSize=100&ATPT_OFCDC_SC_CODE=D10&SD_SCHUL_CODE=7240189&MLSV_FROM_YMD={date}&MLSV_TO_YMD={end_date}')
+#         soup = BeautifulSoup(webpage.content, 'html.parser')
+#         rows = soup.select("row")
+#         for r in rows:
+#             items = r.select_one("ddish_nm").text.split("<br/>")
+#             i_date = r.select_one('MLSV_YMD').text
+#             mealType = r.select_one('MMEAL_SC_NM').text
+#             itemlist[i_date][mealType] = items
+#         print(itemlist)
+#         return jsonify(itemlist)
     
 
 
