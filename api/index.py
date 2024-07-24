@@ -332,7 +332,7 @@ def mypage():
             selves2 = doc_ref.collection('loading').document('자습').get().to_dict()
             for self in selves2:
                 if selves2[self] != '':
-                    selves1[self] = str(selves2[self]) + '대기'
+                    selves1[self] = str(selves2[self]) + ' (대기 중)'
             data = doc.to_dict()
             del data['password']
             data['자습'] = selves1
