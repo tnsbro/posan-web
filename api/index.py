@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request #브라우저의 요청을 처리하기 위한 클래스
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import session
 from datetime import timedelta
 from functools import wraps
@@ -17,6 +17,7 @@ from flask_session import Session
 import uuid
 import requests
 from bs4 import BeautifulSoup
+from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 
 
 cred = credentials.Certificate({
@@ -251,24 +252,20 @@ def login():
         password = postData["password"].encode('utf-8')
         doc_ref = db.collection('students').document(info)
         doc = doc_ref.get()
-        SESSION_EXPIRATION_MINUTES = 5
         if doc.exists: 
             data = doc.to_dict()
             if bcrypt.checkpw(password, data["password"]):
                 session_id = str(uuid.uuid4())
                 session_ref = db.collection('sessions').document(info)
-                expiration_time = datetime.now() + timedelta(minutes=SESSION_EXPIRATION_MINUTES)
                 if info in session:
                     session_ref.delete()
                     session.pop(info, None)
 
                 session[info] = {
                     'session_id' : session_id,
-                    'expiration_time': expiration_time
                 }
                 session_ref.set({
                     'session_id' : session_id,
-                    'expiration_time': expiration_time
                 })
                 return jsonify('성공', session_id)
             else:
@@ -289,6 +286,7 @@ def logout():
         except Exception as e:
             return f"An Error Occurred: {e}", 500
         
+        
 @app.route("/logcheck", methods=['POST'])
 def logcheck():
     postData = request.json
@@ -299,15 +297,11 @@ def logcheck():
     if doc.exists:
         session_data = doc.to_dict()
         if session_data["session_id"] == session_id:
-            expiration_time = session_data['expiration_time']
-            if expiration_time >= datetime.now():
-                return jsonify('성공')
-            else:
-                session.pop(info, None)
-                doc_ref.delete()
-                return jsonify('로그인')
+            return jsonify('성공')
         else:
-            return jsonify('잘못된 접근')
+            session.pop(info, None)
+            doc_ref.delete()
+            return jsonify('로그인')
     else:
         return jsonify('로그인')
 
@@ -392,7 +386,7 @@ def meals():
 #             end_date = now.strftime('%Y%m')+str(days)
             
 
-#         itemlist = {}
+#         itemlist = {
 
 #         for d in range(days):
 #             d_date = str(int(date)+d)
@@ -408,6 +402,13 @@ def meals():
 #             itemlist[i_date][mealType] = items
 #         print(itemlist)
 #         return jsonify(itemlist)
+
+
+@app.route('/communitylist', methods=['GET'])
+def communitylist():
+    docs = db.collection('community').stream()
+    result = [{doc.id: doc.to_dict()} for doc in docs]
+    return jsonify(result)
     
 
 
