@@ -585,23 +585,25 @@ def communityedit():
     writer = data["writer"]
     name = data['name']
     id = data['id']
-    writerData = db.collection('students').document(writer).get()
-    if title.replace(' ', '') != '' and contents.replace(' ', '') != '' and writerData.exists:
-        if writerData.to_dict()['writer'] == writer:
+    community_ref = db.collection('community').document(id)
+    communityData = community_ref.get()
+    if title.replace(' ', '') != '' and contents.replace(' ', '') != '' and communityData.exists:
+        if communityData.to_dict()['name'] == writer:
             if name == 'false':
                 viewname = '익명'
             else :
                 student = db.collection('students').document(writer).get().to_dict()
                 viewname = student['name']
                 
-            db.collection('community').document(id).update({'title' : title, 'contents' : contents, 'name' : viewname})
+            community_ref.update({'title' : title, 'contents' : contents, 'name' : viewname})
             return jsonify({'state' : '성공', 'id' : id})
         else:
             return jsonify({'state' : '잘못된 접근'})
 
     else:
         return jsonify({'state' : '잘못된 접근'})
-    
+
+
  
 
 @app.route('/communitywrite', methods=['POST'])
