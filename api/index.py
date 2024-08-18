@@ -127,7 +127,7 @@ def register():
         plus = postData["plus"]
         location = class_loaction[Class]
         targets = list(friends)
-        targets.append(info)
+        targets.insert(0, info)
         doc_ref = db.collection('class').document(location).collection(Class).document(time)
         doc = doc_ref.get()
         not_list = []
@@ -136,17 +136,28 @@ def register():
             data = doc.to_dict()
             if data['possible'] == True:
                 for target in targets:
+                    set_ref = db.collection('students').document(target).collection('자습').document('자습')
+                    set_datas = set_ref.get()
+                    if set_datas.exists:
+                        set_data = set_datas.to_dict()
+                        if set_data[time] != '':
+                            not_list.append(target)
+                            try:
+                                possible_list.remove(target)
+                            except:
+                                break
+
                     load_ref = db.collection('students').document(target).collection('loading').document('자습')
                     load = load_ref.get()
                     if load.exists:
                         load_data = load.to_dict()
                         try:
-                            if load_data[time] != Class:
+                            if load_data[time] != Class and load_data[time] != '':
                                 not_list.append(target)
                                 try:
                                     possible_list.remove(target)
                                 except:
-                                    continue
+                                    break
                             else:
                                 load_data[time] = Class
                                 load_ref.set(load_data)
@@ -160,6 +171,7 @@ def register():
                     db.collection('class').document('loading').collection(Class).document(time).set({'location':location,'student' : info, 'purpose':purpose, 'friends' : possible_list, 'plus':plus})
                     return jsonify(['성공', not_list])
                 else:
+                    print(not_list, targets)
                     return jsonify(['잘못된 접근1'])
 
             else:
@@ -261,7 +273,7 @@ def delclass():
                 if load_class_data.exists:
                     class_data_dic = load_class_data.to_dict()
                     if class_data_dic['student'] == info:
-                        class_ref = db.collection('class').document(class_loaction[Class]).collection(Class)
+                        class_ref = db.collection('class').document(class_loaction[Class]).collection(Class).document(time)
                         class_data = class_ref.get().to_dict()
                         class_data['loading'] = False
                         class_ref.set(class_data)
@@ -272,13 +284,14 @@ def delclass():
                             friend_data[time] = ''
                             friend_ref.set(friend_data)
                         load_class_ref.delete()
-                        return jsonify('성공1')
+                        return jsonify('성공')
                     
                     else:
                         friends = class_data_dic['friends']
                         if info in friends:
                             friends.remove(info)
-                            return jsonify('성공2')
+                            load_class_ref.update({'friends' : friends})
+                            return jsonify('성공')
                         else :
                             return jsonify('잘못된 접근1')
                 else :
