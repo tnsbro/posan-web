@@ -69,6 +69,48 @@ def format_datetime(value): # html에서 필터가 적용된 변수값이 value�
     else:
         pubdate = datetime.fromtimestamp((int(value)+9*60*60*1000)/1000)
         return pubdate.strftime("%Y-%m-%d %H:%M:%S")
+    
+
+class_loaction = {
+    '2-6' : '본관 1층',
+    'IB영어연극실' : '본관 1층',
+    '고교학점제실1A' : '본관 1층',
+    '고교학점제실1B' : '본관 1층',
+    '컴퓨터실' : '본관 1층',
+    '1-5' : '본관 2층',
+    '1-6' : '본관 2층',
+    '1-7(IB)' : '본관 2층',
+    '1-8(IB)' : '본관 2층',
+    '2-1' : '본관 2층',
+    '2-2' : '본관 2층',
+    '2-3' : '본관 2층',
+    '2-4' : '본관 2층',
+    '2-5' : '본관 2층',
+    '1-1' : '본관 3층',
+    '1-2' : '본관 3층',
+    '1-3' : '본관 3층',
+    '1-4' : '본관 3층',
+    '2-7(IB)' : '본관 3층',
+    'IB생명과학실' : '본관 3층',
+    'IB화학실' : '본관 3층',
+    '미술실' : '본관 3층',
+    '원격수업지원실' : '본관 3층',
+    '과학(준비실)' : '자율관 1층',
+    '과학실1(물지)' : '자율관 1층',
+    '과학실2(화생)' : '자율관 1층',
+    '상상제작소1(첨단기구실)' : '자율관 1층',
+    '상상제작소2(첨단제작실)' : '자율관 1층',
+    '고교학점제2A' : '자율관 2층',
+    '고교학점제2B' : '자율관 2층',
+    '고교학점제2C' : '자율관 2층',
+    '자기주도학습실1' : '자율관 2층',
+    '자기주도학습실2' : '자율관 2층',
+    '진로교실' : '자율관 2층',
+    '고교학점제실4A' : '자율관 4층',
+    '고교학점제실4B' : '자율관 4층',
+    '고교학점제실4C' : '자율관 4층',
+ 
+}
 
 
 
@@ -78,12 +120,12 @@ def register():
     if request.method == "POST":
         postData = request.json
         Class = postData['class']
-        location = postData['location']
         time = postData["time"]
         info = postData["info"]
         friends = postData["friends"]
         purpose = postData["purpose"]
         plus = postData["plus"]
+        location = class_loaction[Class]
         targets = list(friends)
         targets.append(info)
         doc_ref = db.collection('class').document(location).collection(Class).document(time)
@@ -179,7 +221,7 @@ def allowed():
         Class = data['Class']
         time = data['time']
         person = data['person']
-        location = data['location']
+        location = class_loaction[Class]
         doc_ref = db.collection('class').document(location).collection(Class).document(time)
         doc = doc_ref.get().to_dict()
         doc['loading'] = False
@@ -200,6 +242,52 @@ def allowed():
         return jsonify('성공')
     else:
         return '잘못된 접근'
+    
+@app.route('/delclass', methods=["POST"])
+def delclass():
+    if request.method == 'POST':
+        data = request.json
+        info = data['info']
+        Class = data['Class'].strip()
+        time = data['time']
+        doc_ref = db.collection('students').document(info).collection('loading').document('자습')
+        doc = doc_ref.get().to_dict()  
+        try:
+            if doc[time] == Class:
+                doc[time] = ''
+                doc_ref.set(doc)
+                load_class_ref = db.collection('class').document('loading').collection(Class).document(time)
+                load_class_data = load_class_ref.get()
+                if load_class_data.exists:
+                    class_data_dic = load_class_data.to_dict()
+                    if class_data_dic['student'] == info:
+                        class_ref = db.collection('class').document(class_loaction[Class]).collection(Class)
+                        class_data = class_ref.get().to_dict()
+                        class_data['loading'] = False
+                        class_ref.set(class_data)
+                        friends = class_data_dic['friends']
+                        for friend in friends:
+                            friend_ref = db.collection('students').document(friend).collection('loading').document('자습')
+                            friend_data = friend_ref.get().to_dict()
+                            friend_data[time] = ''
+                            friend_ref.set(friend_data)
+                        load_class_ref.delete()
+                        return jsonify('성공1')
+                    
+                    else:
+                        friends = class_data_dic['friends']
+                        if info in friends:
+                            friends.remove(info)
+                            return jsonify('성공2')
+                        else :
+                            return jsonify('잘못된 접근1')
+                else :
+                    return jsonify('잘못된 접근2')
+            else :
+                return jsonify('잘못된 접근3')
+        except:
+            return jsonify('잘못된 접근4')
+
     
 """@app.route("/reset", methods=['GET','POST'])   
 def reset():
@@ -452,14 +540,17 @@ def communityedit():
     id = data['id']
     writerData = db.collection('students').document(writer).get()
     if title.replace(' ', '') != '' and contents.replace(' ', '') != '' and writerData.exists:
-        if name == 'false':
-            viewname = '익명'
-        else :
-            student = db.collection('students').document(writer).get().to_dict()
-            viewname = student['name']
-            
-        db.collection('community').document(id).update({'title' : title, 'contents' : contents, 'name' : viewname})
-        return jsonify({'state' : '성공', 'id' : id})
+        if writer.to_dict()['writer'] == writer:
+            if name == 'false':
+                viewname = '익명'
+            else :
+                student = db.collection('students').document(writer).get().to_dict()
+                viewname = student['name']
+                
+            db.collection('community').document(id).update({'title' : title, 'contents' : contents, 'name' : viewname})
+            return jsonify({'state' : '성공', 'id' : id})
+        else:
+            return jsonify({'state' : '잘못된 접근'})
 
     else:
         return jsonify({'state' : '잘못된 접근'})
