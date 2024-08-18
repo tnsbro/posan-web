@@ -347,6 +347,26 @@ def add_data():
             return jsonify('성공')
     except Exception as e:
         return f"An Error Occurred: {e}", 500
+    
+@app.route('/tsignup', methods=['POST']) #*
+def tsignup():
+    try:
+        data = request.json
+        doc_name = data['info']
+        password = data['password'].encode('utf-8')
+        name = data['name']
+        docs = db.collection('teachers').where('info', '==', doc_name).stream()
+        result = [{doc.id: doc.to_dict()} for doc in docs]
+        
+        if result:
+            return jsonify('이미')
+        else:
+            db.collection('teachers').document(doc_name).set({'name' : name, 'info' : doc_name, 'password' : bcrypt.hashpw(password, bcrypt.gensalt())})
+            db.collection('teachers').document(doc_name).collection('자습').document('자습').set({'점심시간':'', '8,9교시':'', '1자':'', '2자':'', '저녁시간':''})
+            db.collection('teachers').document(doc_name).collection('loading').document('자습').set({})
+            return jsonify('성공')
+    except Exception as e:
+        return f"An Error Occurred: {e}", 500
 
 @app.route("/login", methods=['POST'])  #*
 def login():
@@ -375,20 +395,42 @@ def login():
             else:
                 return jsonify('비밀번호')
         else:
-            return jsonify('정보')
+            doc_ref = db.collection('teachers').document(info)
+            doc = doc_ref.get()
+            if doc.exists: 
+                data = doc.to_dict()
+                if bcrypt.checkpw(password, data["password"]):
+                    session_id = str(uuid.uuid4())
+                    session_ref = db.collection('sessions').document(info)
+                    if info in session:
+                        session_ref.delete()
+                        session.pop(info, None)
+
+                    session[info] = {
+                        'session_id' : session_id,
+                    }
+                    session_ref.set({
+                        'session_id' : session_id,
+                    })
+                    return jsonify('선생님', session_id)
+                else:
+                    return jsonify('비밀번호')
+            else:
+                return jsonify('정보')
+            
         
-@app.route("/logout", methods=['POST']) 
-def logout():
-    if request.method == 'POST': 
-        postData = request.json
-        info = postData["info"]
-        session.pop(info, None)
-        try:
-            session_ref = db.collection('sessions').document(session.sid)
-            session_ref.delete()
-            return jsonify('성공')
-        except Exception as e:
-            return f"An Error Occurred: {e}", 500
+
+        
+@app.route('/teachercheck/<id>', methods=['GET'])
+def teachercheck(id) :
+    teacher = db.collection('teachers').document(id).get()
+    if teacher.exists:
+        return jsonify('성공')
+    else :
+        return jsonify('잘못된 접근')
+
+
+
         
         
 @app.route("/logcheck", methods=['POST'])
@@ -409,14 +451,6 @@ def logcheck():
     else:
         return jsonify('로그인')
 
-
-@app.route('/test', methods=['GET'])
-def test():
-    doc_ref = db.collection('sessions').document('2508')
-    doc_ref.delete()
-    session.pop(2508, None)
-    return '0'
-        
         
         
 @app.route("/mypage", methods=['POST']) #*
@@ -553,7 +587,7 @@ def communityedit():
     id = data['id']
     writerData = db.collection('students').document(writer).get()
     if title.replace(' ', '') != '' and contents.replace(' ', '') != '' and writerData.exists:
-        if writer.to_dict()['writer'] == writer:
+        if writerData.to_dict()['writer'] == writer:
             if name == 'false':
                 viewname = '익명'
             else :
