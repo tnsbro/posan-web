@@ -9,7 +9,7 @@ from flask_cors import CORS
 import pyrebase
 import json
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, storage
 import bcrypt
 import os
 from flask import session
@@ -18,6 +18,7 @@ import uuid
 import requests
 from bs4 import BeautifulSoup
 from google.api_core.datetime_helpers import DatetimeWithNanoseconds
+from bson import ObjectId
 
 
 cred = credentials.Certificate({
@@ -34,7 +35,9 @@ cred = credentials.Certificate({
   "universe_domain": "googleapis.com"
 })
 
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, {
+    'storageBucket' : 'prototype-ba6c5.appspot.com'
+})
 db = firestore.client()
 
 
@@ -409,6 +412,102 @@ def communitylist():
     docs = db.collection('community').stream()
     result = [{doc.id: doc.to_dict()} for doc in docs]
     return jsonify(result)
+
+@app.route('/view/<id>', methods=['GET'])
+def communityview(id):
+    doc_ref = db.collection('community').document(id)
+    doc = doc_ref.get()
+    if doc.exists:
+        doc_data = doc.to_dict()
+        doc_ref.update({'view' : doc_data['view'] + 1})
+        return jsonify(doc_data)
+    else:
+        return jsonify('잘못된 접근')
+
+
+@app.route('/communitydel', methods=['POST'])
+def communitydel() :
+    data = request.json
+    target = data['target']
+    writer = data['writer']
+    doc_ref = db.collection('community').document(target)
+    doc = doc_ref.get()
+    if doc.exists:
+        doc_data = doc.to_dict()
+        if doc_data['writer'] == writer:
+            doc_ref.delete()
+            return jsonify('성공')
+        else:
+            return jsonify('잘못된 접근')
+    else:
+        return jsonify('잘못된 접근')
+    
+@app.route('/communityedit', methods=['POST'])
+def communityedit():
+    data = request.json
+    title = data["title"]
+    contents = data["contents"]
+    writer = data["writer"]
+    name = data['name']
+    id = data['id']
+    writerData = db.collection('students').document(writer).get()
+    if title.replace(' ', '') != '' and contents.replace(' ', '') != '' and writerData.exists:
+        if name == 'false':
+            viewname = '익명'
+        else :
+            student = db.collection('students').document(writer).get().to_dict()
+            viewname = student['name']
+            
+        db.collection('community').document(id).update({'title' : title, 'contents' : contents, 'name' : viewname})
+        return jsonify({'state' : '성공', 'id' : id})
+
+    else:
+        return jsonify({'state' : '잘못된 접근'})
+    
+ 
+
+@app.route('/communitywrite', methods=['POST'])
+def communitywrite():
+    data = request.json
+    title = data["title"]
+    contents = data["contents"]
+    writer = data["writer"]
+    name = data['name']
+    writerData = db.collection('students').document(writer).get()
+    if title.replace(' ', '') != '' and contents.replace(' ', '') != '' and writerData.exists:
+        if name == 'false':
+            viewname = '익명'
+        else :
+            student = db.collection('students').document(writer).get().to_dict()
+            viewname = student['name']
+            
+        id = str(ObjectId())
+        db.collection('community').document(id).set({'title' : title, 'contents' : contents, 'writer' : writer, 'view' : 0, 'good' : 0, 'id' : id, 'name' : viewname})
+        return jsonify({'state' : '성공', 'id' : id})
+
+    else:
+        return jsonify({'state' : '잘못된 접근'})
+
+bucket = storage.bucket()
+
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if file and file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+        blob = bucket.blob(file.filename)
+        blob.upload_from_file(file)
+        blob.make_public()  # 공개적으로 접근 가능하도록 설정
+        file_url = blob.public_url
+        return jsonify({'url': file_url}), 200
+
+    return jsonify({'error': 'Invalid file type'}), 400
+    
     
 
 
