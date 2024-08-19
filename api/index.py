@@ -506,6 +506,7 @@ def meals():
             i_date = r.select_one('MLSV_YMD').text
             mealType = r.select_one('MMEAL_SC_NM').text
             itemlist[i_date][mealType] = items
+
         return jsonify(itemlist)
         
 
@@ -555,9 +556,78 @@ def communityview(id):
     if doc.exists:
         doc_data = doc.to_dict()
         doc_ref.update({'view' : doc_data['view'] + 1})
-        return jsonify(doc_data)
+        comments = doc_ref.collection('comments').stream()
+        comments_data = [{comment.id : comment.to_dict()} for comment in comments]
+        return jsonify(doc_data, comments_data)
     else:
         return jsonify('잘못된 접근')
+
+@app.route('/commentsadd', methods=['POST'])
+def commentsadd():
+    data = request.json
+    target = data['target']
+    contents = data["contents"]
+    writer = data["writer"]
+    name = data['name']
+    writerData = db.collection('students').document(writer).get()
+    if contents.replace(' ', '') != '' and writerData.exists:
+        if name == 'false':
+            viewname = '익명'
+        else :
+            student = db.collection('students').document(writer).get().to_dict()
+            viewname = student['name']
+            
+        id = str(ObjectId())
+        db.collection('community').document(target).collection('comments').document(id).set({'contents' : contents, 'writer' : writer, 'good' : 0, 'name' : viewname, 'id' : id})
+        return jsonify('성공')
+
+    else:
+        return jsonify('잘못된 접근')
+    
+@app.route('/commentdel', methods=['POST'])
+def commentdel() :
+    data = request.json
+    target = data['target']
+    writer = data['writer']
+    id = data['id']
+    doc_ref = db.collection('community').document(target).collection('comments').document(id)
+    doc = doc_ref.get()
+    if doc.exists:
+        doc_data = doc.to_dict()
+        if doc_data['writer'] == writer:
+            doc_ref.delete()
+            return jsonify('성공')
+        else:
+            return jsonify('잘못된 접근')
+    else:
+        return jsonify('잘못된 접근')
+    
+@app.route('/commentedit', methods=['POST'])
+def commentedit():
+    data = request.json
+    target = data["target"]
+    contents = data["contents"]
+    writer = data["writer"]
+    name = data['name']
+    id = data['id']
+    comment_ref = db.collection('community').document(target).collection('comments').document(id)
+    commentData = comment_ref.get()
+    if contents.replace(' ', '') != '' and commentData.exists:
+        if commentData.to_dict()['name'] == writer:
+            if name == 'false':
+                viewname = '익명'
+            else :
+                student = db.collection('students').document(writer).get().to_dict()
+                viewname = student['name']
+                
+            comment_ref.update({'contents' : contents, 'name' : viewname})
+            return jsonify('성공')
+        else:
+            return jsonify('잘못된 접근')
+
+    else:
+        return jsonify('잘못된 접근')
+    
 
 
 @app.route('/communitydel', methods=['POST'])
