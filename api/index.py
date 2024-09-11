@@ -23,20 +23,20 @@ from bson import ObjectId
 
 cred = credentials.Certificate({
   "type": "service_account",
-  "project_id": "prototype-ba6c5",
-  "private_key_id": "b03b027e37241d2f5ebfb775ae06c7b0bae3d065",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDlfSJQoA8V3H47\nmk4zX+6e0PeyShdsg0HfncRDdQjftV+9YbY2o9p1rKiO2mDJILT2619NUONF1Zwy\nuBLmTQdAfk1Nl4UGcdHstCgAg81YSMGYOxUJbJjy7Pxvkk2K2qotAkMyVr4u0ShX\n2zgUb59tIGfCEDiDLijTtlwi2kKOAoDgRZ2fAKKrr1vPsaSWEuZn+XfDu27kaYK6\nvmAXm9+jVFxsEs7sTgJ/rEjv32++3BKbKPTTsjCsdZ78Hh2zyTtEcpfRNF0FZhvl\nfSHSjGYia58HgnNzZe6wt8Mn6lh9guDOmR3BxYm7BGN1v7Ra0ZbaRj6sOgVL1TLq\nw+3miM8lAgMBAAECggEAHy51QOi6nAERatZQzVS51rz0hvZfv+gGxZRJdFP84G6j\nw1b5O+vgFVCgN4bPE0z9IbbCBH6a3uSDHHYb5UxukZIHvWT613EUMboZ3FYMSvRZ\nz64pcdYeYxWVyDAkFpuW91YhHMAiB7j2JxfbgxVWn2yBhKIRF6voMroKw1aOJ/7H\ns9PbYozDqefe2zIXvaOGmQifKXA7VbQd9hasT0MjT3Oo6gvDB3tKBRANrFFXTyM8\nknAOrGSvvPhK6d3F/w2BHCJ9qABALEB68SznMtqqpm1BIi+m4OahlU7pPptvPm7A\noGqNjnE9uGfx4lBi8PWoqG/2+ubNbUCSrfXxMgXeYQKBgQD3csy8pcLAMgHkNSfk\nIip4EcYx0ZYt0LFBG3AryI/otK/PMoBPBZmwMOMCqeP5y9z1c16qonS2mWogJB9r\nkhMfWeLe66yIfOAhiy1AYnQ3xpwP4cRU+5nQxJtSVcv7Uj7TrolDPePdCEE45OIX\nZvxPbqFjcCnvWoG1soLwA1m8hQKBgQDta3GVu9ZgQqbPwKGv1/79701oSNNvStx0\nEgJKBBJWZ3BBIrKWk7DHN/b/7dLvkGMeDlYxMl9f/qzxwUGppgx+hTKh/caODHCG\nnPwWxhBrN4ozgWZRkTfU36Q5+2sMVrKyNbYzl9idNKibxyvfxNVTb0bzfO0YppKD\n9AIVySoaIQKBgEAoI61FzRjH3nWs0orz0M8QzLJeBPIcCdk3o/22IpnTP0IZdesH\nKLHl+vXV1qYNlVyObR0QwfIWFM4Aj6T0WsDmLUxfDnzU48fOrgzjef58IDp97smZ\n8meOkjbmx9yBloiL2Er24P2OBlsZ/QTUTtbJeE6v5i+I59iUUB6qv7mBAoGAUX7w\nHlW74I8Ac4/L8HBUNxZNm95jtXAc/DqyTnXXVZFsFu+yHb3UkI3FW1Rnc5Q8cbS6\nIWkJFAp3kwSjZXh6EXPnTXOvFFNwzMRWQ/r459TIu6VPWfBfGdMqrDyBIlsgO8v0\nHwGgeVX6Cn7zsHwAPgOUd0AKosuKv4Citpe2vAECgYEAn7B2lUCx44im7fgx9MJp\nGnkCdZlIqrwGh7PAuCHFTf6C98hyJEZDnjbKoheXv/CNvkv2hv4FpYGyKowZaNJS\nwSfFzeYPrrRM5RUdk64CqCK68Fj8ygJFxEoGFqKIQRDscjZG1RxFJTHm9c2SdZiJ\nPtoFixhFTfnnR7pTtZBqAeM=\n-----END PRIVATE KEY-----\n",
-  "client_email": "firebase-adminsdk-ty81b@prototype-ba6c5.iam.gserviceaccount.com",
-  "client_id": "107445036565747793492",
+  "project_id": "rooky-de20b",
+  "private_key_id": "3e0a9571b00b025a391573c460f020fb50c29749",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCjojJMqEyOnUDs\n82nyhwl7SSryeso8rmqA4E5ROCQY55dpTnl8rx5T4bcx5QnSmZCwEwY/A3T8Dn1l\nTvjzi4TZRiRG7DgHxWEhbup1rJvg1H9dKfjGltIdlKUY4EluiosgB6Y5e88zwRgR\n+3ZrxrBFxWZLVQFEVYgtagYVmiod4vcwQXHGb/aLLhjwG/zJpOqq97YQaQ6nZ2eD\nWr1ITfn/zwc/P1r+NXr7o0QkcBwgJPr5oV/SzSGl5ctF+WeOu8rxyl3zTvgQcI6k\nYm+S2w1hkwq4CQq5WCF0xKdkae/fIYYVelfO8E8wordc4iA01nt9YPtNmo4utKQ+\ngAK2mU5zAgMBAAECggEAFHlO4diM+6shXIR4VSggP5TAEubaNw17tfRa2D62BYe0\nojB3cupWWRh823lU6UzdlapLtcaw9Hi7p9lhvNdQH/9uupED0bUYmh5Op7qZJmBw\nLy/5OJ/WWm0m2x31EiezkKZkXfznyAn5AQb9oi6SD6jLS9Gu/uXUzBnf+QP5ERQJ\nscAcJqHmxKwrnLYTZf7OUNX/r6nphI/QYjLBUaE2wZcrYtMAQq/RhfqnXfhFL3uh\ny93iqmmsJstVK9sZtg/tIcm+h0SJ2VZnyG1DscP0dPfaTmvlbqmI6sz+8WAfb4Vx\nNoGEK7YyNXnOjl9q2b81SSMtwlMEVI1f+dB7i9CnQQKBgQDN5uq6rzoVucfFTDSw\n+rFEhPLk9aapKiSYijG1Q+9mfTvew2LeDG/DFpVWfsyGl2S6ZP3gRk5Ca9oY1Non\nh1cL2cledtbSqYN3iq/QUtZE1krVYdRzRXT4TjUg7i9PNbROI/tbR36HhjtXPKSm\nHVyhp96EH15Ivw+OEarqOeDdjQKBgQDLcn3+D4dhPLP98kYzNIieatEZ20V7RAZ2\nfy5qiKk9wZQAdergq1ax+Ce8bPSoBhpf0Nb+amSxQc3iK65vsizzfTCxB/y7UnAt\nXXlMnHB71xLIfzi3l2KMqv8cnbg6xb8dmH9nAv/0wcFpXH6gBK4UhBMb2QtcbVgF\nN46/MKnb/wKBgQCvmx/atBOf7+CXPpU507VYMONPrsrDP/QSPNqENDp7eJeVN6Kc\nqpKvGhWnvWEF8Ryxc+yqWIvqTj2mK/Ma/2yX6Ni7PjOdW4GKdLfZvqyL7Q/JyTP+\nU+Cc3WamfT3QGod6lWmMwf8B6tO1ZT0vh583KAq5OF+bP4gurJbOSSqlCQKBgAzv\nh7FKvXniSTOBXxNMaM9hzU/OkFlpFtwb9BCUBebGUynAVaHZYxbHx4cEin3QfYbQ\nGYttql9W5sdVra6ubotAz4LCFkC22ikYQ2kqnUBSiYA0DqAlwP9es//Wy2r5PdCc\n7KTZHPssAqc3WVnFUmg9iZWAtGc5EJqsUKg5aONzAoGAAtsDH+c2zdjGpt0eAKOb\n6AR0u73qaalv+/va2S9zVmavgnRE9pZ6owFtFh1yOBZpDNoz7IFNcP80lESYwcdP\nXi2hPHeXI0UUrNs7h5uWa9kVA10J6Z3V86aM6/+ndUiLMOXBNJSxQ2GTu0QtP/VR\n6Z8Crl7i7x1AUPUhR4QpS1I=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-3nxmk@rooky-de20b.iam.gserviceaccount.com",
+  "client_id": "112153943115042174057",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
   "token_uri": "https://oauth2.googleapis.com/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ty81b%40prototype-ba6c5.iam.gserviceaccount.com",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-3nxmk%40rooky-de20b.iam.gserviceaccount.com",
   "universe_domain": "googleapis.com"
 })
 
 firebase_admin.initialize_app(cred, {
-    'storageBucket' : 'prototype-ba6c5.appspot.com'
+    'storageBucket' : 'rooky-de20b.appspot.com'
 })
 db = firestore.client()
 
@@ -183,15 +183,14 @@ def register():
 
 
 
-# @app.route("/classappend", methods=['GET'])   
-# def classappend():
-#     time = ['점심시간', '8,9교시', '1자', '2자', '저녁시간']
-#     names = ['과학실1(물지)']
-#     for doc_name in names:
-#         for i in time:
-#             doc_ref = db.collection('class').document('자율관 1층').collection(doc_name).document(i) 
-#             doc_ref.set({'loading': False, 'possible': True})
-#     return '성공'
+@app.route("/classappend", methods=['GET'])   
+def classappend():
+    time = ['점심시간', '8,9교시', '1자', '2자', '저녁시간']
+    for c in class_loaction:
+        for i in time:
+            doc_ref = db.collection('class').document(class_loaction[c]).collection(class_loaction[c]).document(i) 
+            doc_ref.set({'loading': False, 'possible': True})
+    return '성공'
 
 @app.route("/classes", methods=['POST'])   
 def classes():
